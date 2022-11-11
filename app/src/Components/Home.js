@@ -18,32 +18,39 @@ import { ethers } from 'ethers'
 import { crowdFundABI } from '../abis/CrowdFund'
 import { useNavigate } from 'react-router-dom'
 import { useAccount, useConnect, useEnsName } from 'wagmi'
+import { useContract, useSigner } from 'wagmi'
 
 function HomeC() {
   const navigate = useNavigate()
   const { address, isConnected } = useAccount()
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
-
+  const provider = new ethers.providers.JsonRpcProvider(
+    'https://rpc.ankr.com/polygon_mumbai',
+  )
+  const { data: signer, isError, isLoading } = useSigner()
+  const contract = new ethers.Contract(
+    '0x4eee991901D658Ee74c466DF8144B2A64025464d',
+    crowdFundABI,
+    signer,
+  )
   useEffect(() => {
     if (!isConnected) {
       navigate('/')
     }
-    const provider = new ethers.providers.JsonRpcProvider(
-      'https://rpc.ankr.com/polygon_mumbai',
-    )
-    const contract = new ethers.Contract(
-      '0x4eee991901D658Ee74c466DF8144B2A64025464d',
-      crowdFundABI,
-      provider,
-    )
+
     const retriveCampaigners = async () => {
+      console.log(contract)
       const totalCampaigners = await contract.idCount()
+      console.log('helloo')
       var tiers = []
       for (var i = 0; i < totalCampaigners; i++) {
         const campaign = await contract.campaigners(i)
-        const owner = campaign.owner
+        var owner = campaign.owner
+        owner = owner.substring(0, 5) + '...'
+        console.log(owner)
         var funds = ethers.BigNumber.from(campaign.fundsAllocated).toNumber()
+        funds = ethers.utils.formatUnits(funds, 18)
         var id = ethers.BigNumber.from(campaign.id).toNumber()
         const object = {
           title: owner,
@@ -59,6 +66,10 @@ function HomeC() {
     }
     retriveCampaigners()
   }, [])
+
+  const handleDonate = async (id) => {
+    await contract.donate(id, { value: '1000000000000000' })
+  }
 
   return (
     <React.Fragment>
@@ -152,8 +163,8 @@ function HomeC() {
               >
                 <Card>
                   <CardHeader
-                    title={tier.title}
-                    subheader={tier.funds}
+                    title={'Owner : ' + tier.title}
+                    subheader={'ID : ' + tier.id}
                     titleTypographyProps={{ align: 'center' }}
                     action={tier.title === 'Pro' ? <StarIcon /> : null}
                     subheaderTypographyProps={{
@@ -180,10 +191,10 @@ function HomeC() {
                         variant="h3"
                         color="text.primary"
                       >
-                        ${tier.funds}
+                        {tier.funds}
                       </Typography>
                       <Typography variant="h6" color="text.secondary">
-                        /mo
+                        matic
                       </Typography>
                     </Box>
                     {/* <ul>
@@ -200,8 +211,15 @@ function HomeC() {
                     </ul> */}
                   </CardContent>
                   <CardActions>
-                    <Button fullWidth variant={tier.buttonVariant}>
-                      {tier.id}
+                    <Button
+                      fullWidth
+                      variant={tier.buttonVariant}
+                      onClick={() => {
+                        console.log('HELLO')
+                        handleDonate(tier.id)
+                      }}
+                    >
+                      Donate
                     </Button>
                   </CardActions>
                 </Card>
