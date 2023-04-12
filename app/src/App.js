@@ -3,6 +3,7 @@ import SignInSide from './Components/Connect'
 import Box from '@mui/material/Box'
 import { Routes, Route, Outlet, Link } from 'react-router-dom'
 import Home from './Components/Home'
+import Create from './Components/Create'
 
 function App() {
   return (

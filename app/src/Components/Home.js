@@ -29,46 +29,56 @@ function HomeC() {
     'https://rpc.ankr.com/polygon_mumbai',
   )
   const { data: signer, isError, isLoading } = useSigner()
+  console.log(signer)
   const contract = new ethers.Contract(
-    '0x4eee991901D658Ee74c466DF8144B2A64025464d',
+    '0x30A8dF7C6D99b6380c37b01b48a62c8D866a48cF',
     crowdFundABI,
     signer,
   )
+  const retriveCampaigners = async () => {
+    console.log(contract)
+    console.log(signer)
+    const totalCampaigners = await contract.projectCount()
+    console.log('helloo')
+    var tiers = []
+    for (var i = 0; i < totalCampaigners; i++) {
+      const campaign = await contract.idToProject(i)
+      const review = await contract.idToReviews(i)
+      var owner = campaign.owner
+      owner = owner.substring(0, 5) + '...'
+      console.log(owner)
+      console.log('FUNDS =', campaign.funds)
+      var funds = ethers.BigNumber.from(campaign.funds).toString()
+      funds = ethers.utils.formatUnits(funds, 18)
+      var id = ethers.BigNumber.from(campaign.id).toNumber()
+      var rating = ethers.BigNumber.from(review.average).toNumber()
+      const object = {
+        title: owner,
+        funds: funds,
+        id: id,
+        rating: rating,
+      }
+      tiers.push(object)
+    }
+    setProjects(tiers)
+    setLoading(false)
+
+    console.log(tiers)
+  }
   useEffect(() => {
     if (!isConnected) {
       navigate('/')
     }
-
-    const retriveCampaigners = async () => {
-      console.log(contract)
-      const totalCampaigners = await contract.idCount()
-      console.log('helloo')
-      var tiers = []
-      for (var i = 0; i < totalCampaigners; i++) {
-        const campaign = await contract.campaigners(i)
-        var owner = campaign.owner
-        owner = owner.substring(0, 5) + '...'
-        console.log(owner)
-        var funds = ethers.BigNumber.from(campaign.fundsAllocated).toNumber()
-        funds = ethers.utils.formatUnits(funds, 18)
-        var id = ethers.BigNumber.from(campaign.id).toNumber()
-        const object = {
-          title: owner,
-          funds: funds,
-          id: id,
-        }
-        tiers.push(object)
-      }
-      setProjects(tiers)
-      setLoading(false)
-
-      console.log(tiers)
-    }
     retriveCampaigners()
-  }, [])
+  }, [signer])
 
   const handleDonate = async (id) => {
-    await contract.donate(id, { value: '1000000000000000' })
+    await contract.lockFunds(id, '100000000000000000', {
+      value: '100000000000000000',
+    })
+  }
+  const handleReview = async (id) => {
+    await contract.addReview(id, 10)
   }
 
   return (
@@ -197,6 +207,26 @@ function HomeC() {
                         matic
                       </Typography>
                     </Box>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'baseline',
+                        mb: 2,
+                      }}
+                    >
+                      <Typography
+                        component="h2"
+                        variant="h3"
+                        color="text.primary"
+                      >
+                        Rating : {tier.rating}
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        color="text.secondary"
+                      ></Typography>
+                    </Box>
                     {/* <ul>
                       {tier.description.map((line) => (
                         <Typography
@@ -215,11 +245,21 @@ function HomeC() {
                       fullWidth
                       variant={tier.buttonVariant}
                       onClick={() => {
-                        console.log('HELLO')
                         handleDonate(tier.id)
                       }}
                     >
                       Donate
+                    </Button>
+                  </CardActions>
+                  <CardActions>
+                    <Button
+                      fullWidth
+                      variant={tier.buttonVariant}
+                      onClick={() => {
+                        handleReview(tier.id)
+                      }}
+                    >
+                      Review
                     </Button>
                   </CardActions>
                 </Card>
