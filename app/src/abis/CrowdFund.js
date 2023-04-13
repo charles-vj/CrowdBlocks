@@ -3,172 +3,89 @@ export const crowdFundABI = [
     inputs: [
       {
         internalType: 'uint256',
-        name: '_id',
+        name: '_lastVaccTime',
         type: 'uint256',
       },
       {
         internalType: 'uint256',
-        name: '_rating',
+        name: 'doseNumber',
         type: 'uint256',
       },
-    ],
-    name: 'addReview',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
       {
         internalType: 'string',
-        name: '_name',
+        name: '_aadhar',
         type: 'string',
       },
       {
         internalType: 'string',
-        name: '_description',
+        name: '_nameOfLastVaccination',
+        type: 'string',
+      },
+      {
+        internalType: 'string',
+        name: '_placeOfLastVaccination',
         type: 'string',
       },
     ],
-    name: 'createProject',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
+    name: 'vaccinate',
+    outputs: [
       {
-        internalType: 'uint256',
-        name: '_id',
-        type: 'uint256',
-      },
-    ],
-    name: 'distributeFunds',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_id',
-        type: 'uint256',
-      },
-    ],
-    name: 'initialEval',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_id',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '_amount',
-        type: 'uint256',
-      },
-    ],
-    name: 'lockFunds',
-    outputs: [],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    stateMutability: 'payable',
-    type: 'fallback',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
+        internalType: 'bytes',
         name: '',
-        type: 'uint256',
+        type: 'bytes',
       },
     ],
-    name: 'idToProject',
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: '_bytes32',
+        type: 'bytes32',
+      },
+    ],
+    name: 'bytes32ToString',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'pure',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    name: 'individuals',
     outputs: [
       {
         internalType: 'uint256',
-        name: 'id',
+        name: 'vaccinationReceived',
         type: 'uint256',
       },
       {
-        internalType: 'address',
-        name: 'owner',
-        type: 'address',
+        internalType: 'uint256',
+        name: 'timeOfLastVaccination',
+        type: 'uint256',
       },
       {
         internalType: 'string',
-        name: 'name',
+        name: 'nameOfLastVaccination',
         type: 'string',
       },
       {
         internalType: 'string',
-        name: 'description',
+        name: 'placeOfLastVaccination',
         type: 'string',
-      },
-      {
-        internalType: 'uint256',
-        name: 'repScore',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'funds',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'tier',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    name: 'idToReviews',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'totalCount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'sumOfReviews',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'average',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'projectCount',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
       },
     ],
     stateMutability: 'view',

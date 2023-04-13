@@ -19,19 +19,21 @@ import { crowdFundABI } from '../abis/CrowdFund'
 import { useNavigate } from 'react-router-dom'
 import { useAccount, useConnect, useEnsName } from 'wagmi'
 import { useContract, useSigner } from 'wagmi'
+import { Input } from '@mui/material'
 
 function HomeC() {
   const navigate = useNavigate()
   const { address, isConnected } = useAccount()
-  const [projects, setProjects] = useState([])
+  const [data, setData] = useState()
   const [loading, setLoading] = useState(true)
+  const [aadhar, setAadhar] = useState('')
   const provider = new ethers.providers.JsonRpcProvider(
     'https://rpc.ankr.com/polygon_mumbai',
   )
   const { data: signer, isError, isLoading } = useSigner()
   console.log(signer)
   const contract = new ethers.Contract(
-    '0x30A8dF7C6D99b6380c37b01b48a62c8D866a48cF',
+    '0xc19f5ea7faa1582b0b53f6c9bd7bc5af871eb801',
     crowdFundABI,
     signer,
   )
@@ -60,7 +62,7 @@ function HomeC() {
       }
       tiers.push(object)
     }
-    setProjects(tiers)
+    // setProjects(tiers)
     setLoading(false)
 
     console.log(tiers)
@@ -69,13 +71,15 @@ function HomeC() {
     if (!isConnected) {
       navigate('/')
     }
-    retriveCampaigners()
+    // retriveCampaigners()
   }, [signer])
 
-  const handleDonate = async (id) => {
-    await contract.lockFunds(id, '100000000000000000', {
-      value: '100000000000000000',
-    })
+  const handleVaccinate = async () => {
+    await contract.vaccinate('312', '1', aadhar, 'Covishield', 'Kottayam')
+  }
+  const handleRetrieve = async () => {
+    const result = await contract.individuals('1234')
+    setData(result)
   }
   const handleReview = async (id) => {
     await contract.addReview(id, 10)
@@ -142,7 +146,7 @@ function HomeC() {
           color="text.primary"
           gutterBottom
         >
-          Projects
+          Records
         </Typography>
         <Typography
           variant="h6"
@@ -150,125 +154,33 @@ function HomeC() {
           color="text.secondary"
           component="p"
         >
-          The internet has unlocked unprecedented opportunities for
-          collaboration and creation. Now web3 technology like open source
-          protocols and decentralized blockchains give us the ability to take
-          that co-creation to a new scale. The CrowdBlocks community uses this
-          technology to fund and build digital public goods projects that serve
-          everyone, and solve our most immediate problems.
+          Check your medical records here
         </Typography>
       </Container>
       {/* End hero unit */}
       <Container maxWidth="md" component="main">
-        <Grid container spacing={5} alignItems="flex-end">
-          {!loading ? (
-            projects.map((tier) => (
-              // Enterprise card is full width at sm breakpoint
-              <Grid
-                item
-                key={tier.title}
-                xs={12}
-                sm={tier.title === 'Enterprise' ? 12 : 6}
-                md={4}
-              >
-                <Card>
-                  <CardHeader
-                    title={'Owner : ' + tier.title}
-                    subheader={'ID : ' + tier.id}
-                    titleTypographyProps={{ align: 'center' }}
-                    action={tier.title === 'Pro' ? <StarIcon /> : null}
-                    subheaderTypographyProps={{
-                      align: 'center',
-                    }}
-                    sx={{
-                      backgroundColor: (theme) =>
-                        theme.palette.mode === 'light'
-                          ? theme.palette.grey[200]
-                          : theme.palette.grey[700],
-                    }}
-                  />
-                  <CardContent>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'baseline',
-                        mb: 2,
-                      }}
-                    >
-                      <Typography
-                        component="h2"
-                        variant="h3"
-                        color="text.primary"
-                      >
-                        {tier.funds}
-                      </Typography>
-                      <Typography variant="h6" color="text.secondary">
-                        matic
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'baseline',
-                        mb: 2,
-                      }}
-                    >
-                      <Typography
-                        component="h2"
-                        variant="h3"
-                        color="text.primary"
-                      >
-                        Rating : {tier.rating}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        color="text.secondary"
-                      ></Typography>
-                    </Box>
-                    {/* <ul>
-                      {tier.description.map((line) => (
-                        <Typography
-                          component="li"
-                          variant="subtitle1"
-                          align="center"
-                          key={line}
-                        >
-                          {line}
-                        </Typography>
-                      ))}
-                    </ul> */}
-                  </CardContent>
-                  <CardActions>
-                    <Button
-                      fullWidth
-                      variant={tier.buttonVariant}
-                      onClick={() => {
-                        handleDonate(tier.id)
-                      }}
-                    >
-                      Donate
-                    </Button>
-                  </CardActions>
-                  <CardActions>
-                    <Button
-                      fullWidth
-                      variant={tier.buttonVariant}
-                      onClick={() => {
-                        handleReview(tier.id)
-                      }}
-                    >
-                      Review
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))
-          ) : (
-            <></>
-          )}
-        </Grid>
+        Input your aadhar :{' '}
+        <Input
+          value={aadhar}
+          onChange={(e) => setAadhar(e.target.value)}
+        ></Input>
+        <button onClick={handleRetrieve}> Submit</button>
+      </Container>
+      <Container>
+        {data ? (
+          <>
+            Name = {data.nameOfLastVaccination} <br />
+            Place = {data.placeOfLastVaccination}
+            <br />
+            Doses completed :{' '}
+            {ethers.BigNumber.from(data.vaccinationReceived).toNumber()}
+            <br />
+            Last vaccination time :{' '}
+            {ethers.BigNumber.from(data.timeOfLastVaccination).toNumber()}
+          </>
+        ) : (
+          <></>
+        )}
       </Container>
       {/* Footer */}
       <Container
